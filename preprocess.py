@@ -3,7 +3,7 @@ import utils
 # Save .mp3 files to random 6 second .wav snippets
 
 def main():
-    home_path = "/Users/claytonblythe/github/neuralMusic/"
+    home_path = "/home/cblythe2/github/neuralMusic/"
     # Save randomized samples for every song in directory containing mp3s
     base_path = home_path + "data/music/"
     save_path = home_path + "data/samples/"
