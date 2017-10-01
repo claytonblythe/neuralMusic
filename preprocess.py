@@ -13,9 +13,9 @@ def main():
     save_path = "/Users/claytonblythe/github/neuralMusic/data/spectrogram_tensors/"
     utils.save_spectrogram_tensors(base_path, save_path)
 
-    base_path = "/Users/claytonblythe/github/neuralMusic/data/samples/"
-    save_path = "/Users/claytonblythe/github/neuralMusic/data/spectrograms/"
-    utils.save_spectrograms(base_path, save_path)
+    #base_path = "/Users/claytonblythe/github/neuralMusic/data/samples/"
+    #save_path = "/Users/claytonblythe/github/neuralMusic/data/spectrograms/"
+    #utils.save_spectrograms(base_path, save_path)
 
 if __name__ == "__main__":
     main()
