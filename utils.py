@@ -12,7 +12,7 @@ import librosa.display
 def save_random_clips(base_path, save_path, snip_length):
     directories = iter(f for f in os.listdir(base_path))
     for directory in directories:
-        filenames = iter(f for f in os.listdir(base_path + '/' + directory + '/'))
+        filenames = iter(f for f in os.listdir(base_path + directory + '/'))
         os.makedirs(save_path + directory)
         for filename in filenames:
             y, sr = librosa.load(base_path + directory + '/' + filename, mono=True,  sr=None)
@@ -26,7 +26,7 @@ def save_random_clips(base_path, save_path, snip_length):
 def save_spectrogram_tensors(base_path, save_path):
     directories = iter(f for f in os.listdir(base_path))
     for directory in directories:
-        filenames = iter(f for f in os.listdir(base_path + '/' + directory + '/'))
+        filenames = iter(f for f in os.listdir(base_path + directory + '/'))
         os.makedirs(save_path + directory)
         for filename in tqdm(filenames):
             y, sr = librosa.load(base_path + directory + '/' + filename, mono=True, sr=None)
