@@ -8,9 +8,6 @@ short snippets of different songs (~6 seconds of audio). I am working on taking 
 Here is an example of what a spectrogram looks like, it is kind of like a "fingerprint" for a song, representing how different frequencies of sound evolve over time. 
 ![Alt Test](https://github.com/claytonblythe/neuralMusic/blob/master/data/spectrograms/lose_yourself_to_dance.png)
 
-Here is a crowd cheering:
-
-![Alt Test](https://github.com/claytonblythe/neuralMusic/blog/master/data/spectrograms/crowd-cheering.png)
 
 Convolutional Neural Networks have contributed to amazing advancements in image recognition, and this dataset is fairly large, so I am looking to see how good they are at converting the visual representation of a snippet of audio into genre predictions. I imagine it could be a cool app where you can get classification of a genre from a very short recording of audio
 
