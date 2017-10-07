@@ -10,8 +10,10 @@ import librosa.display
 
 # Save randomized short clips from the .mp3 files in the base_path directory
 def save_random_clips(base_path, save_path, snip_length):
-    directories = iter(f for f in os.listdir(base_path))
-    for directory in directories:
+    directories = [f for f in os.listdir(base_path)]
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    for directory in tqdm(directories):
         filenames = iter(f for f in os.listdir(base_path + directory + '/'))
         for filename in filenames:
             y, sr = librosa.load(base_path + directory + '/' + filename, mono=True,  sr=None)
@@ -23,7 +25,9 @@ def save_random_clips(base_path, save_path, snip_length):
 # Save melspectrogram tensors for every file in some base_path directory to some save_path
 ## Note: this creates 512 bins (128*4) for the frequency component
 def save_spectrogram_tensors(base_path, save_path):
-    filenames = iter(f for f in os.listdir(base_path))
+    filenames = [f for f in os.listdir(base_path)]
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
     for filename in tqdm(filenames):
         y, sr = librosa.load(base_path + filename, mono=True, sr=None)
         S = librosa.feature.melspectrogram(y=y, n_mels=128*4, fmax=8000)
