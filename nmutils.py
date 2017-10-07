@@ -5,8 +5,9 @@ from tqdm import *
 import numpy as np
 import matplotlib.pyplot as plt
 import librosa.display
-import pandas
+import pandas as pd
 import utils
+import torch.utils.data as data
 ## Author: Clayton Blythe <claytondblythe@gmail.com>
 ## Utilties for my CNN genre classification project
 
@@ -15,7 +16,7 @@ def save_genre_master_list(base_path, save_path):
     tracks = utils.load(base_path + 'tracks.csv')
     track_genres_df = tracks['track']['genre_top']
     track_genres_df.index = [str(item).zfill(6) for item in track_genres_df.index]
-    track_genres_df.to_csv(save_path + 'genre_master_list.csv')
+    track_genres_df.to_csv(save_path + 'genre_master_list.csv', header=False)
 
 # Save randomized short clips from the .mp3 files in the base_path directory
 def save_random_clips(base_path, save_path, snip_length):
@@ -41,6 +42,43 @@ def save_spectrogram_tensors(base_path, save_path):
         y, sr = librosa.load(base_path + filename, mono=True, sr=None)
         S = librosa.feature.melspectrogram(y=y, n_mels=128*4, fmax=8000)
         S.tofile(save_path + filename[:-4])
+
+# Save csv for spectrogram_tensor genre labels
+def save_tensor_labels(base_path, save_path):
+    tensor_files = os.listdir(base_path)
+    df = pd.read_csv(save_path + 'genre_master_list.csv', dtype=object, header=None, names=['tensor_name', 'genre_top'])
+    new_df = df[df['tensor_name'].isin(tensor_files)]
+    new_df.to_csv(save_path + 'tensor_genres.csv')
+
+class FmaDataset(data.Dataset):
+    """Dataset wrapping images and target labels for Kaggle - Planet Amazon from Space competition.
+    Arguments:
+        A CSV file path
+        Path to torch tensors folder
+        Torch Tensor transforms to do
+    """
+
+    def __init__(self, csv_path, tensor_path, transform=None):
+        tmp_df = pd.read_csv(csv_path)
+        assert tmp_df.index.apply(lambda x: os.path.isfile(tensor_path + x)).all(), \
+"Some tensors referenced in the CSV file were not found"
+
+        self.mlb = MultiLabelBinarizer()
+        self.tensor_path = tensor_path
+        self.transform = transform
+
+        self.X_train = tmp_df.index
+        self.y_train = self.mlb.fit_transform(tmp_df['genre_top'].str.split()).astype(np.float32)
+
+    def __getitem__(self, index):
+        tensor = np.fromfile(self.tensor_path + self.X_train[index])
+        if self.transform is not None:
+            tensor = self.transform(tensor)
+        label = torch.from_numpy(self.y_train[index])
+        return tensor, label
+
+    def __len__(self):
+        return len(self.X_train.index)
 
 # Save random samples into spectrogram figures.. this takes alot of storage so be warned
 # def save_spectrograms(base_path, save_path):
