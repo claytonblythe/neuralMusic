@@ -10,6 +10,13 @@ import utils
 ## Author: Clayton Blythe <claytondblythe@gmail.com>
 ## Utilties for my CNN genre classification project
 
+# Save genre master list for referencing
+def save_genre_master_list(base_path, save_path):
+    tracks = utils.load(base_path + 'tracks.csv')
+    track_genres_df = tracks['track']['genre_top']
+    track_genres_df.index = [str(item).zfill(6) for item in track_genres_df.index]
+    track_genres_df.to_csv(save_path + 'genre_master_list.csv')
+
 # Save randomized short clips from the .mp3 files in the base_path directory
 def save_random_clips(base_path, save_path, snip_length):
     directories = [f for f in os.listdir(base_path)]
@@ -34,13 +41,6 @@ def save_spectrogram_tensors(base_path, save_path):
         y, sr = librosa.load(base_path + filename, mono=True, sr=None)
         S = librosa.feature.melspectrogram(y=y, n_mels=128*4, fmax=8000)
         S.tofile(save_path + filename[:-4])
-
-# Save genre master list for referencing
-def save_genre_master_list(base_path, save_path):
-    tracks = utils.load(base_path + 'tracks.csv')
-    track_genres_df = tracks['track']['genre_top']
-    track_genres_df.index = [str(item).zfill(6) for item in track_genres_df.index]
-    track_genres_df.to_csv(save_path + 'genre_master_list.csv')
 
 # Save random samples into spectrogram figures.. this takes alot of storage so be warned
 # def save_spectrograms(base_path, save_path):
