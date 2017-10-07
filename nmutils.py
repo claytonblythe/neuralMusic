@@ -50,6 +50,7 @@ def save_tensor_labels(base_path, save_path):
     new_df = df[df['tensor_name'].isin(tensor_files)]
     new_df.to_csv(save_path + 'tensor_genres.csv')
 
+# FMA Dataset class
 class FmaDataset(data.Dataset):
     """Dataset wrapping images and target labels for Kaggle - Planet Amazon from Space competition.
     Arguments:
@@ -60,15 +61,15 @@ class FmaDataset(data.Dataset):
 
     def __init__(self, csv_path, tensor_path, transform=None):
         tmp_df = pd.read_csv(csv_path)
-        assert tmp_df.index.apply(lambda x: os.path.isfile(tensor_path + x)).all(), \
+        assert tmp_df['tensor_name'].apply(lambda x: os.path.isfile(tensor_path + x)).all(), \
 "Some tensors referenced in the CSV file were not found"
 
         self.mlb = MultiLabelBinarizer()
         self.tensor_path = tensor_path
         self.transform = transform
 
-        self.X_train = tmp_df.index
-        self.y_train = self.mlb.fit_transform(tmp_df['genre_top'].str.split()).astype(np.float32)
+        self.X_train = tmp_df['tensor_name']
+        self.y_train = self.mlb.fit_transform(tmp_df['genre_top']).astype(np.float32)
 
     def __getitem__(self, index):
         tensor = np.fromfile(self.tensor_path + self.X_train[index])
