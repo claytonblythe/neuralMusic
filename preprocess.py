@@ -20,7 +20,7 @@ def get_args():
 
 
 def main():
-    home_path = "/Volumes/passport/"
+    home_path = "/home/cblythe2/github/neuralMusic/"
     # Match return values from get_arguments()
     size = get_args()
 

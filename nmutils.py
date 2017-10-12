@@ -26,11 +26,16 @@ def save_random_clips(base_path, save_path, snip_length):
     for directory in tqdm(directories):
         filenames = iter(f for f in os.listdir(base_path + directory + '/'))
         for filename in filenames:
-            y, sr = librosa.load(base_path + directory + '/' + filename, mono=True,  sr=None)
-            song_duration = librosa.core.get_duration(y, sr)
-            random_offset = random.uniform(0,song_duration - 5.96)
-            y, sr = librosa.load(base_path + directory + '/' + filename, mono=True,  offset=random_offset, duration= 5.94, sr=None)
-            librosa.output.write_wav(y=y, sr=sr, path=save_path + filename[:-4] + '.wav')
+            try:
+
+                y, sr = librosa.load(base_path + directory + '/' + filename, mono=True,  sr=None)
+                song_duration = librosa.core.get_duration(y, sr)
+                random_offset = random.uniform(0,song_duration - 5.96)
+                y, sr = librosa.load(base_path + directory + '/' + filename, mono=True,  offset=random_offset, duration= 5.94, sr=None)
+
+                librosa.output.write_wav(y=y, sr=sr, path=save_path + filename[:-4] + '.wav')
+            except:
+                pass
 
 # Save melspectrogram tensors for every file in some base_path directory to some save_path
 ## Note: this creates 512 bins (128*4) for the frequency component
