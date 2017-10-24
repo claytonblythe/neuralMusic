@@ -1,52 +1,73 @@
 
 # coding: utf-8
 
-# In[19]:
+# In[1]:
 
-import numpy as np
-import os
-import pandas as pd
-from sklearn.preprocessing import MultiLabelBinarizer
-import sys
-import torch.utils.data as data
+
+import time
 import torch
 import torch.nn as nn
 import torchvision.datasets as dsets
 import torchvision.transforms as transforms
 from torch.autograd import Variable
+import librosa
+import librosa.display
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import torch.utils.data as data
+from sklearn.preprocessing import MultiLabelBinarizer
 
 
-# In[20]:
+# In[2]:
 
 
 torch.cuda.is_available()
 
 
-# In[21]:
+# In[3]:
 
 
-# Hyperparameters
-num_epochs = 700
-batch_size = 64
+num_epochs = 200
+batch_size = 128
 learning_rate = 1e-5
 valid_ratio = .25
 
 
-# In[22]:
+# In[4]:
 
 
-tensor_files = os.listdir('/home/cblythe2/github/neuralMusic/data/spectrogram_tensors/')
+# tensor_files = os.listdir('/mnt/sde1/neuralMusic/data/spectrogram_tensors/')
+
+
+# In[5]:
+
+
 # len(tensor_files)
 
 
-# In[23]:
+# In[6]:
 
 
-df = pd.read_csv('/home/cblythe2/github/neuralMusic/data/tensor_genres.csv', dtype=object)
-#df.head()
+# df = pd.read_csv('/mnt/sde1/neuralMusic/data/tensor_genres.csv', dtype=object)
+# df.shape
 
 
-# In[24]:
+# In[7]:
+
+
+# def filter_tensor_files(tensor_path, tensor_file):
+#     tensor = np.fromfile(tensor_path + tensor_file)
+#     tensor = torch.from_numpy(tensor)
+#     tensor = tensor.view(-1, 512)
+#     if tensor.shape[0] != 512 or tensor.shape[1] != 512:
+#         return(False)
+#     else:
+#         return(True)
+
+
+# In[8]:
 
 
 class FmaDataset(data.Dataset):
@@ -62,7 +83,7 @@ class FmaDataset(data.Dataset):
         assert tmp_df2['tensor_name'].apply(lambda x: os.path.isfile(tensor_path + x)).all(), "Some tensors referenced in the CSV file were not found"
         assert tmp_df2['tensor_name'].apply(lambda x: np.fromfile(tensor_path + x).size==262144).all(), "Some tensors referenced had the wrong number of elements"
         tmp_df2 = tmp_df2.reset_index(drop=True)
-        tmp_df2 = tmp_df2[:7552] # for clean batch divisibility
+        tmp_df2 = tmp_df2[:7552]
 
         self.mlb = MultiLabelBinarizer()
         self.tensor_path = tensor_path
@@ -86,21 +107,13 @@ class FmaDataset(data.Dataset):
         return len(self.X_train.index)
 
 
-# In[25]:
+# In[9]:
 
 
-dataset = FmaDataset(csv_path='/home/cblythe2/github/neuralMusic/data/tensor_genres.csv', tensor_path='/home/cblythe2/github/neuralMusic/data/spectrogram_tensors/')
+dataset = FmaDataset(csv_path='/mnt/sde1/neuralMusic/data/tensor_genres.csv', tensor_path='/home/cblythe2/github/neuralMusic/data/spectrogram_tensors/')
 
 
-# In[26]:
-
-
-# print(dataset.X_train.shape, dataset.y_train.shape)
-# print()
-# dataset.y_train[75:83]
-
-
-# In[27]:
+# In[10]:
 
 
 indices = torch.randperm(len(dataset))
@@ -109,7 +122,31 @@ train_indices = indices[:len(indices)-valid_size]
 valid_indices = indices[len(indices)-valid_size:]
 
 
-# In[28]:
+# In[11]:
+
+
+# fma_dataset.X_train.shape
+
+
+# In[12]:
+
+
+# fma_dataset.y_train.shape
+
+
+# In[13]:
+
+
+# fma_dataset.y_train[75:83]
+
+
+# In[14]:
+
+
+# fma_dataset.X_train[0:10]
+
+
+# In[15]:
 
 
 train_loader = data.DataLoader(dataset,
@@ -125,9 +162,9 @@ valid_loader = data.DataLoader(dataset, sampler=data.sampler.SubsetRandomSampler
                          )
 
 
-# ## Convolutional Neural Network ~ 36% Accuracy
+# ## Convolutional Neural Network ~ 45% Accuracy
 
-# In[29]:
+# In[16]:
 
 
 # CNN Model (2 conv layer)
@@ -154,40 +191,40 @@ class CNN(nn.Module):
             nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2))
-#         self.layer5 = nn.Sequential(
-#             nn.Conv2d(128, 256, kernel_size=3, padding=1, stride=1),
-#             nn.BatchNorm2d(256),
-#             nn.ReLU(),
-#             nn.MaxPool2d(2))
-        self.fc = nn.Linear(128*32*32, 8)
-#         self.fc = nn.Linear(256*16*16, 8)
+        self.layer5 = nn.Sequential(
+            nn.Conv2d(128, 256, kernel_size=3, padding=1, stride=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.MaxPool2d(2))
+#         self.fc = nn.Linear(128*32*32, 8)
+        self.fc = nn.Linear(256*16*16, 8)
 
     def forward(self, x):
         out = self.layer1(x)
         out = self.layer2(out)
         out = self.layer3(out)
         out = self.layer4(out)
-#         out = self.layer5(out)
+        out = self.layer5(out)
         out = out.view(out.size(0), -1)
         out = self.fc(out)
         return out
 
 
-# In[30]:
+# In[17]:
 
 
 model = CNN()
-model.cuda();
+model.cuda()
 
 
-# In[31]:
+# In[18]:
 
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 
-# In[32]:
+# In[19]:
 
 
 def train(epoch):
@@ -204,7 +241,7 @@ def train(epoch):
     return(loss.data[0])
 
 
-# In[33]:
+# In[20]:
 
 
 def test(best_accuracy):
@@ -225,13 +262,16 @@ def test(best_accuracy):
     return(epoch_accuracy)
 
 
-# In[36]:
+# In[23]:
 
 
 best_epoch = 0
 best_accuracy = 0
 print('------Hyperparameters------\nNumber of Epochs | {:.0f}\nBatch Size       | {:.0f}\nLR:              | {:.5f}\nValidation Ratio | {:.3f}\n'.format(num_epochs, batch_size, learning_rate, valid_ratio))
 print("---------------------------\nTraining on {} examples\nTesting on {} examples\n---------------------------\n".format(len(train_indices), len(valid_indices)))
+print(model)
+print('\n\n')
+begin_time = time.time()
 for epoch in range(num_epochs):
     try:
         # Train model over epoch
@@ -247,5 +287,5 @@ for epoch in range(num_epochs):
     except KeyboardInterrupt:
         print("\nBest Validation Accuracy of {:.2f}% at Epoch {:.0f}".format(best_accuracy, best_epoch))
         sys.exit(1)
-print("\nBest Validation Accuracy of {:.2f}% at Epoch {:.0f}".format(best_accuracy, best_epoch))
+print("\nBest Validation Accuracy of {:.2f}% at Epoch {:.0f} of {:.0f} in {:.1f} minutes".format(best_accuracy, best_epoch, num_epochs, int((time.time() - begin_time))/60))
 
