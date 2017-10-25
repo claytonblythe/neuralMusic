@@ -196,8 +196,14 @@ class CNN(nn.Module):
             nn.BatchNorm2d(256),
             nn.ReLU(),
             nn.MaxPool2d(2))
+        self.layer6 = nn.Sequential(
+            nn.Conv2d(256, 512, kernel_size=3, padding=1, stride=1),
+            nn.BatchNorm2d(512),
+            nn.ReLU(),
+            nn.MaxPool2d(2))
 #         self.fc = nn.Linear(128*32*32, 8)
-        self.fc = nn.Linear(256*16*16, 8)
+        # self.fc = nn.Linear(256*16*16, 8)
+        self.fc = nn.Linear(512*8*8, 8)
 
     def forward(self, x):
         out = self.layer1(x)
@@ -205,6 +211,7 @@ class CNN(nn.Module):
         out = self.layer3(out)
         out = self.layer4(out)
         out = self.layer5(out)
+        out = self.layer6(out)
         out = out.view(out.size(0), -1)
         out = self.fc(out)
         return out
