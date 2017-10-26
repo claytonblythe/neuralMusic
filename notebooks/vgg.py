@@ -5,6 +5,7 @@
 
 
 import time
+import random
 import torch
 import torch.nn as nn
 import torchvision.datasets as dsets
@@ -29,7 +30,7 @@ torch.cuda.is_available()
 # In[3]:
 
 
-num_epochs = 200
+num_epochs = 500
 batch_size = 128
 learning_rate = 1e-5
 valid_ratio = .25
@@ -96,6 +97,9 @@ class FmaDataset(data.Dataset):
         tensor = np.fromfile(self.tensor_path + self.X_train[index])
         tensor = torch.from_numpy(tensor)
         tensor = tensor.view(512, 512)
+        if random.uniform(0, 1) > .5:
+            tensor = tensor.numpy()
+            tensor = torch.from_numpy(np.fliplr(tensor).copy())
         tensor = tensor.unsqueeze(0).float()
         if self.transform is not None:
             tensor = self.transform(tensor)
