@@ -16,7 +16,7 @@ For example, here is a six second snippet from "Lose Yourself To Dance" by Daft 
 Convolutional Neural Networks have contributed to amazing advancements in image recognition, and this dataset is fairly large, so I am looking to see how good they are at converting the visual representation of a snippet of audio into genre predictions. I imagine it could be a cool app where you can get classification of a genre from a very short recording of audio.
 
 
-With an initial test on 5.94 second length samples, training on ~5500 samples and testing on ~2200 validation examples, I achieved an accuracy of 45.7% at classifying a song's membership to one of eight genre classses. I think these results are pretty decent considering the small size of data I used, and for such a short time snippet. I uses a model of five hidden layers inspired by the vgg net, employing convolutions, batch normalizations and ReLU at each layer.  
+With an initial test on 5.94 second length samples, training on ~5500 samples and testing on ~2200 validation examples, I achieved an accuracy of ~50% at classifying a song's membership to one of eight genre classses. I think these results are pretty decent considering the small size of data I used, and for such a short time snippet (5.94s). I uses a model of five hidden layers inspired by the vgg net, employing convolutions, batch normalizations and ReLU at each layer.  
 
 I plan on continuing this project, looking at larger amounts of training examples and incorporating data augmentation as well as different types of model architectures like squeeze net. 
 
